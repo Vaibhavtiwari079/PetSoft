@@ -2,12 +2,15 @@ import React from 'react'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Button } from './ui/button';
+import { logIn, signUp } from '@/actions/action';
 type AuthFormprops={
-  type:"signUp"|"LogIn";
+  type:"logIn"|"signUp";
 }
 function AuthForm({type}:AuthFormprops) {
   return (
-    <form >
+    <form action={type==="logIn"?logIn: signUp} >
+
+
         <div className='space-y-1'>
             <Label htmlFor='email'>Email</Label>
             <Input id="email" name="email" type="email" required maxLength={100}/>
@@ -18,7 +21,7 @@ function AuthForm({type}:AuthFormprops) {
             <Input id="password" name="password" type="password" required maxLength={100}/>
         </div>
         <Button variant="default">{
-     type=="LogIn"?"LogIn":"SignUp"
+     type==="logIn"?"logIn":"SignUp"
 }</Button>
     </form>
   )

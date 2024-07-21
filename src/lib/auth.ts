@@ -1,5 +1,5 @@
-import NextAuth ,{NextAuthConfig} from "next-auth/next"
-;
+import NextAuth ,{NextAuthConfig} from "next-auth"
+
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs"
 import prisma from "./db";
@@ -40,16 +40,40 @@ const config={
             //runs on every middlewaare reequest
             const isLoggedIn =auth?.user;
             const isTryingToAccessApp=request.nextUrl.pathname.includes("/app")
-            if(isTryingToAccessApp){
+            if(!isLoggedIn && isTryingToAccessApp){
                 return false;
             }
-            else{
-                return true
+            if (isLoggedIn && !isTryingToAccessApp){
+                return true;
             }
-
+            if(isLoggedIn && !isTryingToAccessApp){
+                return Response.redirect(new URL("/app/dashboard",request.nextUrl))
+            }
+            if (!isLoggedIn && isTryingToAccessApp){
+                return true;
+            }
+            
+          return false;
         }
 
-    }
+    },
+    jwt:({token,user})=>{
+        if(user){
+            //on sign in 
+            token.userId=user.id;
+        }
+        return token
+    },
+    session:({session,token}){
+        if(!session.user){
+            
+        session.user.id=token.userId
+
+        }
+        return session
+    },
+    
+
 
 } satisfies NextAuthConfig;
-export const {signIn,auth}=NextAuth(config)
+export const {signIn,auth,signOut}=NextAuth(config)
