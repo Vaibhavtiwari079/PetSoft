@@ -1,7 +1,7 @@
 "use server"
 import { auth, signIn, signOut } from "@/lib/auth"
 import prisma from "@/lib/db"
-import { checkAuth } from "@/lib/server-utils"
+import { checkAuth, getPetById } from "@/lib/server-utils"
 
 import { sleep } from "@/lib/utils"
 import { petFormSchema, petIdSchema } from "@/lib/validations"
@@ -82,12 +82,7 @@ const session =await checkAuth();
     }
  }
  //auth check
- const pet =await prisma.pet.findUnique({
-    where:{
-        id:validatePetId.data
-    },
-
- })
+ const pet =getPetById(validatePetId.data)
  if(!pet){
     return{
         message:"Pet not found",
@@ -123,15 +118,7 @@ const session =await checkAuth();
         }
      }
     //auth on user pets
-    const pet=await prisma.pet.findUnique({
-        where:{
-            id:validatePetId.data,
-        },
-        select:{
-            userId:true,
-        }
-
-    })
+    const pet=await getPetById(validatePetId.data)
     if(pet?.userId!==session.user.id){
         return{
             message:"Not authorized",
