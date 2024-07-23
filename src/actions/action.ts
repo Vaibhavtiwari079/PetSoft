@@ -5,10 +5,12 @@ import { checkAuth, getPetById } from "@/lib/server-utils"
 
 import { sleep } from "@/lib/utils"
 import { authSchema, petFormSchema, petIdSchema } from "@/lib/validations"
+import { AuthError } from "next-auth";
 
 
 import { revalidatePath } from "next/cache"
 import bcrypt from "bcryptjs"
+import { Prisma } from "@prisma/client"
 
 //user actions
 export async function logIn(formData:unknown){
@@ -17,26 +19,47 @@ export async function logIn(formData:unknown){
             message:"Invalid form data"
         }
     }
+    try {
+        await signIn("credentials",formData);
+        
+    } catch (error) {
+        if(error instanceof AuthError){
+            switch(error.type){
+                case "CredentialsSignIn":{
+                    return {
+                        message:"Invalid credentails"
+                    }
+                }
+                default:{
+                    return {
+                        message:"Error occured in credentails"
+                    }
+                }
+            }
+
+        }
+        throw error;
+        
+    }
+
     
     
 
-    await signIn("credentials",formData);
     
 }
 export async function logOut(){
     await signOut({redirectTo:"/"})
 }
 export async function signUp(formData:unknown) {
-    ///checking if a formdata is a form datat ype
+    ///checking if a formdata is aformdatatype
     if(!(formData instanceof FormData)){
         return {
             message:"Invalid form data",
         }
     }
     //convert formData to a plain object
-    const formDataEntries=Object.fromEntries(formData.entries());
+    const formDataEntries=Object.fromEntries(formData.entries()); 
 
-    //validations
     const validatedFormData=authSchema.safeParse(formData)
     if(!validatedFormData.success){
         return{
@@ -45,12 +68,27 @@ export async function signUp(formData:unknown) {
     }
     const {email,password}=validatedFormData.data
    const hashedPassword= await  bcrypt.hash(password,10)  
-    await prisma.user.create({
-        data:{
-            email,hashedPassword,
-        }
-    })
+   try {
+       await prisma.user.create({
+           data:{
+               email,hashedPassword,
+           }
+       })
+       
     
+   } catch (error) {
+    if(error instanceof Prisma.PrismaClientKnownRequestError){
+        if(error.code ==="P2002"){
+            return {
+                message:"email already exist",
+            }
+        }
+    }
+    return{
+        message:"Could not create user"
+    }
+    
+   }
     
     await signIn("credentials",formData);
 }

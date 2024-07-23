@@ -16,7 +16,9 @@ type Props={
   onFormSubmission:()=>void;
 }
 function PetForm({actionType,onFormSubmission}:Props) {
+ 
   const {handleAddPet,handleEditPet,selectedPet }=usePetContext()
+  
 const {
   register,trigger,getValues,
   formState:{errors},
@@ -68,13 +70,17 @@ const {
     
       
     onFormSubmission() 
+
     const petData=getValues()
     petData.imageUrl=petData.imageUrl || DEFAULTIMAGE ;
-    if(actionType=="add"){
-      handleAddPet(petData)
+    
+    if(actionType==="add"){
+    await handleAddPet(petData)
     }
-    else if(actionType=="edit"){
-      handleEditPet(selectedPet!.id,petData)
+    else if(actionType==="edit"){
+      await handleEditPet(selectedPet!.id,petData)
+
+
     }
 
        
