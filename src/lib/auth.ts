@@ -2,8 +2,9 @@ import NextAuth ,{NextAuthConfig} from "next-auth"
 
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs"
-import prisma from "./db";
 import { getUserByEmail } from "./server-utils";
+import { logIn } from "@/actions/action";
+import { authSchema } from "./validations";
 const config={
     pages:{
         signIn:"/login",
@@ -12,7 +13,14 @@ const config={
         Credentials({
             //runs on login
             async authorize(credentials){
-                const {email,password}=credentials;
+               //runs o n login
+               //validations
+               const validateFormData=authSchema.safeParse(credentials)
+               if(!validateFormData.success){
+                return null
+               }
+                //extract values
+                const {email,password}=validateFormData.data;
 
                 const user=await getUserByEmail(email)
                 if(!user){
@@ -73,4 +81,4 @@ const config={
 
 
 } satisfies NextAuthConfig;
-export const {signIn,auth,signOut}=NextAuth(config)
+export const {signIn,auth,signOut,handlers:{GET,POST}}=NextAuth(config)

@@ -8,3 +8,12 @@ export const petFormSchema=z.object({
     notes:z.union([z.literal(""),z.string().trim().max(1000)])
   })
   export type TPetform=z.infer<typeof petFormSchema>
+
+
+
+  export const authSchema= z.object({
+    email:z.string().email().max(100),
+    password:z.string().min(6).max(100),
+  })
+  //for obtaining types
+  export type TAuth=z.infer<typeof authSchema>
