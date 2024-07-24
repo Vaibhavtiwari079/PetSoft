@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import React, { useTransition } from 'react'
 
 export function Page({searchParams}:{
-    searchP arams:{[key:string]:string | string[] |undefined}
+    searchParams:{[key:string]:string | string[] |undefined}
 }) {
     const [isPending,startTransition]=useTransition()
   return (

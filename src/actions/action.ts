@@ -12,9 +12,12 @@ import { revalidatePath } from "next/cache"
 import bcrypt from "bcryptjs"
 import { Prisma } from "@prisma/client"
 import { redirect } from "next/navigation"
+
+
+
 const stripe=require("stripe")(process.env.STRIPE_SECRET_KEY)
 //user actions
-export async function logIn(formData:unknown){
+export async function logIn(prevState:unknown,formData:unknown){
     if(!(formData instanceof FormData)){
         return{
             message:"Invalid form data"
@@ -23,17 +26,17 @@ export async function logIn(formData:unknown){
     try {
         await signIn("credentials",formData);
         
-    } catch (error) {
-        if(error instanceof AuthError){
+    } catch (error :any) {
+        if(error.name === "AuthError"){
             switch(error.type){
                 case "CredentialsSignIn":{
                     return {
-                        message:"Invalid credentails"
+                        message:"Invalid credentials"
                     }
                 }
                 default:{
                     return {
-                        message:"Error occured in credentails"
+                        message:"Error occured in credentials"
                     }
                 }
             }
