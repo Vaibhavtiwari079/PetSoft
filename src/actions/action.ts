@@ -5,7 +5,7 @@ import { checkAuth, getPetById } from "@/lib/server-utils"
 
 import { sleep } from "@/lib/utils"
 import { authSchema, petFormSchema, petIdSchema } from "@/lib/validations"
-import { AuthError } from "next-auth";
+import AuthError from "next-auth";
 
 
 import { revalidatePath } from "next/cache"
@@ -50,7 +50,7 @@ export async function logIn(formData:unknown){
 export async function logOut(){
     await signOut({redirectTo:"/"})
 }
-export async function signUp(formData:unknown) {
+export async function signUp(prevState:unknown,formData:unknown) {
     ///checking if a formdata is aformdatatype
     if(!(formData instanceof FormData)){
         return {

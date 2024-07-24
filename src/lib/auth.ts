@@ -1,5 +1,5 @@
-import NextAuth ,{NextAuthConfig} from "next-auth"
-
+import NextAuthConfig from "next-auth"
+import NextAuth from "next-auth/next";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs"
 import { getUserByEmail } from "./server-utils";

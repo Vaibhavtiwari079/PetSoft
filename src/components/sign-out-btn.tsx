@@ -2,9 +2,20 @@
 
 import { logOut } from "@/actions/action"
 import { Button } from "./ui/button"
+import { useTransition } from "react"
 
 function SignOutBtn() {
-  return (<Button onClick={async()=>{await logOut()}}>Sign Out</Button>
+  const [isPending,startTransition]=useTransition()
+  //loading function outside a form
+  return (
+  <Button 
+  disabled={isPending}
+  onClick={
+    async()=>{
+      startTransition(async()=>{
+        await logOut();
+      })
+    }}>Sign Out</Button>
   )
 }
 
