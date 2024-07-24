@@ -11,7 +11,8 @@ import AuthError from "next-auth";
 import { revalidatePath } from "next/cache"
 import bcrypt from "bcryptjs"
 import { Prisma } from "@prisma/client"
-
+import { redirect } from "next/navigation"
+const stripe=require("stripe")(process.env.STRIPE_SECRET_KEY)
 //user actions
 export async function logIn(formData:unknown){
     if(!(formData instanceof FormData)){
@@ -201,4 +202,28 @@ const session =await checkAuth();
     }
     
 revalidatePath("/app","layout")
+}
+
+///payment stripe
+export async function createCheckoutSession(){
+ // session
+ const session=await checkAuth()
+    
+//checkout
+    const checkoutSession=await stripe.checkout.session.create({
+        customer_email:session.user.email,
+        line_items:[
+            {
+                price:"price_1PfvRVRsO5M4AhgknuN1Johr",
+                quantity:1,
+            },
+        ],
+        mode:"payment",
+        success_url:`${process.env.CANONICAL_URL}/payment?success=true`,
+        cancel_url:`${process.env.CANONICAL_URL}/payment?cancelled=true`
+    })
+
+
+    //redirect
+    redirect(checkoutSession.url)
 }
